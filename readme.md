@@ -1,0 +1,1 @@
+Meter el data dentro de backend/flask/static
