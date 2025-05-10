@@ -17,11 +17,21 @@ def start_game():
 
 @app.route("/api/game/hit", methods=["POST"])
 def player_hit():
+    if game.turn != "player":
+        return jsonify({"error": "Not player's turn"}), 400
     return jsonify(game.player_hit())
 
 @app.route("/api/game/stand", methods=["POST"])
 def player_stand():
+    if game.turn != "player":
+        return jsonify({"error": "Not player's turn"}), 400
     return jsonify(game.player_stand())
+
+@app.route("/api/game/dealer", methods=["POST"])
+def dealer_action():
+    if game.turn != "dealer":
+        return jsonify({"error": "Not dealer's turn"}), 400
+    return jsonify(game.dealer_turn())
 
 @app.route("/api/game/state", methods=["GET"])
 def game_state():
