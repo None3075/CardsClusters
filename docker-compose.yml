@@ -1,0 +1,30 @@
+services:
+  backend:
+    build:
+      context: ./backend/flask
+      dockerfile: Dockerfile
+    container_name: blackjack-backend
+    ports:
+      - "5000:5000"
+    restart: unless-stopped
+    networks:
+      - blackjack-network
+  
+  frontend:
+    build:
+      context: ./frontend/my-app
+      dockerfile: Dockerfile
+      args: 
+        REACT_APP_API_URL: http://localhost:5000
+    container_name: blackjack-frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - blackjack-network
+
+networks:
+  blackjack-network:
+    driver: bridge

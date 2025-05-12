@@ -19,7 +19,7 @@ function App() {
   });
   
   const [loading, setLoading] = useState(false);
-  const API_URL = "http://localhost:5000/api/game"; // TODO IPS CHANGE
+  const API_URL = `${process.env.REACT_APP_API_URL}/api/game` || "http://localhost:5000/api/game"; // TODO IPS CHANGE
 
   const [playDeal] = useSound(dealSound);
   const [playWin] = useSound(winSound);
@@ -128,7 +128,8 @@ function App() {
   };
 
   const renderCard = (card, index, isNewCard = false) => {
-    const imageUrl = `http://localhost:5000${card.image_path}`; // TODO IPS CHANGE
+    const baseUrl = process.env.REACT_APP_API_URL || "http://localhost:5000"; // TODO IPS CHANGE
+    const imageUrl = `${baseUrl}${card.image_path}`; // TODO IPS CHANGE
     
     return (
       <motion.div
