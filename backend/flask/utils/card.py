@@ -4,6 +4,7 @@ class Card:
         self.suit = suit
         self.value = value
         self.number = random.randint(1, 5)
+        self.predicted_category, self.predicted_suit = None, None
         
     def get_numeric_value(self):
         if self.value in ['J', 'Q', 'K']:
@@ -42,5 +43,7 @@ class Card:
             'suit': self.suit,
             'value': self.value,
             'numeric_value': self.get_numeric_value(),
-            'image_path': self.get_image_path()
+            'image_path': self.get_image_path(),
+            'predicted_category': self.predicted_category,
+            'predicted_suit': self.predicted_suit
         }

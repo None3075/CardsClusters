@@ -42,7 +42,7 @@ df_with_timestamp = parsed_streaming_df \
     .withColumn("event_time", to_timestamp("timestamp"))
 
 finance_by_country = df_with_timestamp \
-    .filter(df_with_timestamp.event_time >= expr("current_timestamp() - interval 5 minutes")) \
+    .filter(df_with_timestamp.event_time >= expr("current_timestamp() - interval 15 minutes")) \
     .filter("category = 'finance'") \
     .withWatermark("event_time", "1 minute") \
     .groupBy(

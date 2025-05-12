@@ -19,7 +19,9 @@ function App() {
   });
   
   const [loading, setLoading] = useState(false);
-  const API_URL = `${process.env.REACT_APP_API_URL}/api/game` || "http://localhost:5000/api/game"; // TODO IPS CHANGE
+  const API_URL = process.env.REACT_APP_API_URL 
+    ? `${process.env.REACT_APP_API_URL}/api/game` 
+    : "http://localhost:5000/api/game";
 
   const [playDeal] = useSound(dealSound);
   const [playWin] = useSound(winSound);
@@ -128,18 +130,29 @@ function App() {
   };
 
   const renderCard = (card, index, isNewCard = false) => {
-    const baseUrl = process.env.REACT_APP_API_URL || "http://localhost:5000"; // TODO IPS CHANGE
-    const imageUrl = `${baseUrl}${card.image_path}`; // TODO IPS CHANGE
+    const baseUrl = process.env.REACT_APP_API_URL || "http://localhost:5000";
+    const imageUrl = `${baseUrl}${card.image_path}`;
+    
+    // Get prediction data (if your backend provides it)
+    const predictedCategory = card.predicted_category || "Unknown";
+    const predictedSuit = card.predicted_suit || "Unknown";
     
     return (
       <motion.div
         key={`${card.value}-${card.suit}-${index}`}
-        className={`relative w-24 h-36 m-2 rounded-lg shadow-lg ${isNewCard ? 'border-4 border-yellow-300' : ''}`}
+        className={`relative w-24 h-36 m-2 rounded-lg shadow-lg group ${isNewCard ? 'border-4 border-yellow-300' : ''}`}
         initial={{ opacity: 0, y: 50, rotateY: 180 }}
         animate={{ opacity: 1, y: 0, rotateY: 0 }}
         transition={{ delay: index * 0.2, duration: 0.5 }}
         whileHover={{ y: -10, transition: { duration: 0.2 } }}
       >
+        {/* Prediction overlay - only visible on hover */}
+        <div className="absolute -top-8 left-0 right-0 bg-black bg-opacity-70 text-white text-xs p-1 rounded-md z-10 text-center
+                       opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <div className="font-bold">{predictedCategory}</div>
+          <div>{predictedSuit}</div>
+        </div>
+        
         <img 
           src={imageUrl} 
           alt={`${card.value} of ${card.suit}`} 
