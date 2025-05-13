@@ -14,6 +14,56 @@ class Card:
         else:
             return int(self.value)
     
+    def get_predicted_card_value(self):
+        score = 0
+        value_names = {
+            'two': '2',
+            'three': '3',
+            'four': '4',
+            'five': '5',
+            'six': '6',
+            'seven': '7',
+            'eight': '8',
+            'nine': '9',
+            'ten': '10',
+            'jack': 'J',
+            'queen': 'Q',
+            'king': 'K',
+            'ace': 'A'
+        }
+        
+        # Translate the predicted category using the value_names dictionary
+        if self.predicted_category in value_names:
+            categori = value_names[self.predicted_category]
+        else:
+            ValueError(f"Invalid predicted category: {self.predicted_category}")
+            
+        # Score from the predicted category
+        if categori in ['J', 'Q', 'K']:
+            score = 10
+        elif categori == 'A':
+            score = 11
+        else:
+            score = int(self.value)
+        
+        # Score from the predicted suit
+        if self.predicted_suit == 'hearts':
+            score += 2
+        elif self.predicted_suit == 'diamonds':
+            score += 1
+        elif self.predicted_suit == 'spades':
+            score -= 2
+            
+        aces = 1 if self.value == 'A' else 0
+
+        while score > 21 and aces > 0:
+            score -= 10
+            aces -= 1
+        
+        return score
+
+        
+    
     def get_image_path(self):
         value_names = {
             '2': 'two',
