@@ -11,7 +11,7 @@ spark = SparkSession.builder \
 spark.sparkContext.setLogLevel("WARN")
 
 # Kafka connection parameters
-kafka_bootstrap_servers = "172.31.41.218:9094"  # TODO CHANGE IF CHANGE FROM LOCAL TO SERVER
+kafka_bootstrap_servers = "172.31.25.179:9094"  # TODO CHANGE IF CHANGE FROM LOCAL TO SERVER
 kafka_topic = "news_events"
 
 schema = StructType([

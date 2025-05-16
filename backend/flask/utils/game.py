@@ -22,7 +22,20 @@ class Game:
         self.message = "Game started. Player's turn."
         self.turn = "player"
         self.dealer_stand = False
-        return self.get_game_state()
+        
+        # Check if the game is over at the start because player or dealer drawed more than 21
+        player_score = self.calculate_score(self.player_hand)
+        dealer_score = self.calculate_score(self.dealer_hand)
+        if player_score > 21:
+            self.game_over = True
+            self.message = "Bust! Dealer wins."
+            return self.get_game_state()
+        elif dealer_score > 21:
+            self.game_over = True
+            self.message = "Dealer busts! You win!"
+            return self.get_game_state()
+        else:
+            return self.get_game_state()
     
     def calculate_score(self, hand):
         score = sum(card.get_numeric_value() for card in hand)
