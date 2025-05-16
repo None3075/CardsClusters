@@ -27,7 +27,7 @@ print(df.count())
 #For that we will divide the dataset in parts (as we did 100000 matches and
 #we only took a match for each 50 matches we will divide it into 5 parts)
 
-CHUNK_SIZE = 440
+CHUNK_SIZE = 500
 print(df_.show(truncate =  False))
 df_.select("data").printSchema()
 
@@ -54,7 +54,7 @@ df_chunks = df_clean.withColumn("Chunk Number", floor(col("index")/CHUNK_SIZE))
 df_chunks.show(5)
 
 # Contar jugadas no nulas
-from pyspark.sql.functions import expr, when
+from pyspark.sql.functions import expr, when, coalesce
 
 hand_cols = ["Hand_0", "Hand_1", "Hand_2", "Hand_3", "Hand_4", "Hand_5", "Hand_6", "Hand_7"]
 df_moves = df_chunks.withColumn("n_moves",
@@ -66,26 +66,33 @@ df_moves = df_chunks.withColumn("n_moves",
 
 df_moves.show(5)
 
+rev_hand_cols = ["Hand_7", "Hand_6", "Hand_5", "Hand_4", "Hand_3", "Hand_2", "Hand_1", "Hand_0"]
+df_result_train = df_moves.withColumn("Final_Hand", coalesce(*[col(c) for c in rev_hand_cols]))
+df_result_train.show()
+
+df_result_train = df_result_train.withColumn(
+    "Result",
+    when(col("Final_Hand").isNull(), "Unknown")
+    .when(col("Final_Hand")[0] > 21, "Lose")
+    .when(col("Final_Hand")[1] > 21, "Win")
+    .when(col("Final_Hand")[0] > col("Final_Hand")[1], "Win")
+    .when(col("Final_Hand")[0] < col("Final_Hand")[1], "Lose")
+    .otherwise("Draw")
+)
+df_result_train.show()
+
+probabilities = [0.25, 0.5, 0.75]
+
+quartiles = df_result_train.select("n_moves").approxQuantile("n_moves", probabilities, 0.01)
+
 df_risk = df_moves.withColumn(
     "Risk Level",
-    when(col("n_moves") <= 1, "Safe")
-    .when(col("n_moves") == 2, "Tactical")
-    .when(col("n_moves") == 3, "Aggressive")
-    .when(col("n_moves") == 4, "Risky")
-    .otherwise("Are you crazy?")
+    when(col("n_moves") <= quartiles[0], "Safe")
+    .when((col("n_moves") > quartiles[0]) & (col("n_moves") <= quartiles[1]), "Tactical")
+    .when((col("n_moves") > quartiles[1]) & (col("n_moves") <= quartiles[2]), "Risky")
+    .otherwise("Wow, you like risk ;)")
 )
 
-df_risk.show(5)
+df_risk.show()
 
-#--------------
-#   QUERY 2
-#--------------
-
-#The types of strategies, (safe, tactical, risky…) and it’s proportion
-#It helps to identify which strategy is the common one.
-
-df_fin = df_risk.select(col("Chunk Number"), col("n_moves"), col("Risk Level")).groupBy("Chunk Number", "Risk Level").count().orderBy("Chunk Number", "count")
-print(df_fin.show(30))
-
-df_query2 = df_fin.withColumn("Proportion", round(col("count")*100/CHUNK_SIZE, 2))
-df_query2.show(30)
+df_risk.groupBy("Chunk Number", "Risk Level").count().orderBy("Chunk Number", "count").show(truncate = False)
