@@ -16,8 +16,8 @@ spark = SparkSession.builder \
 
 spark.sparkContext.setLogLevel("WARN")
 
-path_training = "CardsParquetData/trained_blackjack.parquet"
-path_match = "CardsParquetData/played_blackjack.parquet"
+path_training = "hdfs:///user/ec2-user/data/trained_blackjack.parquet"
+path_match = "hdfs:///user/ec2-user/data/played_blackjack.parquet"
 
 df_train = spark.read.parquet(path_training)
 df_play = spark.read.parquet(path_match)
@@ -88,3 +88,5 @@ wins_df = df_clean_play.filter(col("Result") == "Win").groupBy("1st Hand Card", 
 
 df_winrate = total_df.join(wins_df, on=["1st Hand Card", "Chunk Number"], how="left").fillna(0, subset=["Wins"]).withColumn("Winning Rate Proportion", col("Wins") / col("TotalGames"))
 df_winrate.orderBy("Winning Rate Proportion", ascending = False).show()
+
+df_winrate.write.mode("overwrite").parquet("hdfs:///user/ec2-user/output/winrate_results.parquet")
