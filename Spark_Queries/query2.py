@@ -2,8 +2,8 @@ from pyspark.sql import SparkSession
 from pyspark.sql.functions import col
 from pyspark.sql.functions import monotonically_increasing_id
 
-#The five types of plays are classified by their riskiness.
-#It helps to identify the tactics of the AI
+#The types of strategies, (safe, tactical, risky…) and it’s proportion
+#It helps to identify which strategy is the common one.
 
 spark = SparkSession.builder \
     .appName("TGVD_GenericQuery") \
@@ -12,8 +12,14 @@ spark = SparkSession.builder \
 
 spark.sparkContext.setLogLevel("WARN")
 
+'''
+Para ejecutar con datos en local:
 path_training = "CardsParquetData/trained_blackjack.parquet"
 path_match = "CardsParquetData/played_blackjack.parquet"
+'''
+
+path_training = "hdfs:///user/ec2-user/CardsParquetData/trained_blackjack.parquet"
+path_match = "hdfs:///user/ec2-user/CardsParquetData/played_blackjack.parquet"
 
 df_train = spark.read.parquet(path_training)
 df_play = spark.read.parquet(path_match)
@@ -150,3 +156,6 @@ df_fin_play = df_risk_play.select("Risk Level", "n_moves") \
     .orderBy("count")
 
 df_fin_play.show(truncate=False)
+
+df_fin_train.write.mode("overwrite").parquet("hdfs:///user/ec2-user/output/query2/strategy_winrate_train.parquet")
+df_fin_play.write.mode("overwrite").parquet("hdfs:///user/ec2-user/output/query2/strategy_winrate_play.parquet")

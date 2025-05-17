@@ -12,8 +12,14 @@ spark = SparkSession.builder \
 
 spark.sparkContext.setLogLevel("WARN")
 
+'''
+Para ejecutar con datos en local:
 path_training = "CardsParquetData/trained_blackjack.parquet"
 path_match = "CardsParquetData/played_blackjack.parquet"
+'''
+
+path_training = "hdfs:///user/ec2-user/CardsParquetData/trained_blackjack.parquet"
+path_match = "hdfs:///user/ec2-user/CardsParquetData/played_blackjack.parquet"
 
 df_train = spark.read.parquet(path_training)
 df_play = spark.read.parquet(path_match)
@@ -92,23 +98,26 @@ Collect Set:
 df_moves_train = df_moves_train.withColumn("Agent_1st_Card", col("Hand_-1")[0])
 df_moves_train = df_moves_train.withColumn("Opponent_1st_Card", col("Hand_-1")[1])
 
-df_hits_stats = df_moves_train.groupBy("Agent_1st_Card", "Opponent_1st_Card", "Chunk Number") \
+df_hits_train_stats = df_moves_train.groupBy("Agent_1st_Card", "Opponent_1st_Card", "Chunk Number") \
     .agg(
         variance("n_hits").alias("Hits_Variance"),
         expr("percentile(n_hits, array(0.25, 0.5, 0.75)) as Hits_Quartiles"),
         expr("collect_set(n_hits) as Unique_Hits")
     )
 
-df_hits_stats.show()
+df_hits_train_stats.show()
 
 df_moves_play = df_moves_play.withColumn("Agent_1st_Card", col("Hand_-1")[0])
 df_moves_play = df_moves_play.withColumn("Opponent_1st_Card", col("Hand_-1")[1])
 
-df_stats_play = df_moves_play.groupBy("Agent_1st_Card", "Opponent_1st_Card") \
+df_hits_play_stats = df_moves_play.groupBy("Agent_1st_Card", "Opponent_1st_Card") \
     .agg(
         variance("n_hits").alias("Hits_Variance"),
         expr("percentile(n_hits, array(0.25, 0.5, 0.75)) as Hits_Quartiles"),
         expr("collect_set(n_hits) as Unique_Hits")
     )
 
-df_stats_play.show()
+df_hits_play_stats.show()
+
+df_hits_train_stats.write.mode("overwrite").parquet("hdfs:///user/ec2-user/output/query5/understanding_model_train.parquet")
+df_hits_play_stats.write.mode("overwrite").parquet("hdfs:///user/ec2-user/output/query5/understanding_model_play.parquet")

@@ -15,8 +15,14 @@ spark = SparkSession.builder \
 
 spark.sparkContext.setLogLevel("WARN")
 
+'''
+Para ejecutar con datos en local:
 path_training = "CardsParquetData/trained_blackjack.parquet"
 path_match = "CardsParquetData/played_blackjack.parquet"
+'''
+
+path_training = "hdfs:///user/ec2-user/CardsParquetData/trained_blackjack.parquet"
+path_match = "hdfs:///user/ec2-user/CardsParquetData/played_blackjack.parquet"
 
 df = spark.read.parquet(path_training)
 df_ = df.rdd.zipWithIndex().toDF(["data", "index"])
@@ -97,3 +103,5 @@ df_risk.show()
 
 df_risk = df_risk.groupBy("Chunk Number", "Risk Level").count().orderBy("Chunk Number", "count")
 df_risk.show(truncate = False)
+
+df_risk.write.mode("overwrite").parquet("hdfs:///user/ec2-user/output/query1/type_strategy.parquet")

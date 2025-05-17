@@ -16,8 +16,14 @@ spark = SparkSession.builder \
 
 spark.sparkContext.setLogLevel("WARN")
 
+'''
+Para ejecutar con datos en local:
 path_training = "CardsParquetData/trained_blackjack.parquet"
 path_match = "CardsParquetData/played_blackjack.parquet"
+'''
+
+path_training = "hdfs:///user/ec2-user/CardsParquetData/trained_blackjack.parquet"
+path_match = "hdfs:///user/ec2-user/CardsParquetData/played_blackjack.parquet"
 
 df_train = spark.read.parquet(path_training)
 df_play = spark.read.parquet(path_match)
@@ -169,3 +175,8 @@ df_fin_play = df_moves_play.select("Hand_-1", "n_moves") \
     .orderBy("count", ascending = False)
 
 df_fin_play.show(truncate = False)
+
+df_winrate_train.write.mode("overwrite").parquet("hdfs:///user/ec2-user/output/query3/winrate_per1sthand_train_results.parquet")
+df_winrate_play.write.mode("overwrite").parquet("hdfs:///user/ec2-user/output/query3/winrate_per1sthand_play_results.parquet")
+df_fin_train.write.mode("overwrite").parquet("hdfs:///user/ec2-user/output/query3/unique_moves_per1sthand_train_results.parquet")
+df_fin_play.write.mode("overwrite").parquet("hdfs:///user/ec2-user/output/query3/unique_moves_per1sthand_play_results.parquet")

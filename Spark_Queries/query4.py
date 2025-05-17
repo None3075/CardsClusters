@@ -12,8 +12,14 @@ spark = SparkSession.builder \
 
 spark.sparkContext.setLogLevel("WARN")
 
+'''
+Para ejecutar con datos en local:
 path_training = "CardsParquetData/trained_blackjack.parquet"
 path_match = "CardsParquetData/played_blackjack.parquet"
+'''
+
+path_training = "hdfs:///user/ec2-user/CardsParquetData/trained_blackjack.parquet"
+path_match = "hdfs:///user/ec2-user/CardsParquetData/played_blackjack.parquet"
 
 df_train = spark.read.parquet(path_training)
 df_play = spark.read.parquet(path_match)
@@ -73,3 +79,6 @@ total_df = df_play.groupBy("Agent_hand", "Distance_from_21").agg(sum("count").al
 wins_df = df_play.filter(col("Result") == "Win").groupBy("Agent_hand", "Distance_from_21").agg(sum("count").alias("Wins"))
 df_winrate_play = total_df.join(wins_df, on=["Agent_hand", "Distance_from_21"], how="left").fillna(0, subset=["Wins"]).withColumn("Winning Rate Proportion", col("Wins") / col("TotalGames")).orderBy("Winning Rate Proportion", ascending = False)
 df_winrate_play.show(1000)
+
+df_winrate_train.write.mode("overwrite").parquet("hdfs:///user/ec2-user/output/query4/winrate_perdistance_from21_train.parquet")
+df_winrate_play.write.mode("overwrite").parquet("hdfs:///user/ec2-user/output/query4/winrate_perdistance_from21_play.parquet")
