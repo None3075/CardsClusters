@@ -5,11 +5,6 @@ import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans, DBSCAN 
 from sklearn.metrics import davies_bouldin_score, calinski_harabasz_score, silhouette_score 
 
-import optuna
-from joblib import Parallel, delayed
-import torch
-
-import concurrent.futures
 
 class Perspectiver:
 

@@ -1,2 +1,8 @@
 flask
 flask-cors
+pandas
+torch
+torchvision
+opencv-python
+matplotlib
+scikit-learn
