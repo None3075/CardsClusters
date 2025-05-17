@@ -28,7 +28,7 @@ class CardRecognizer:
         return self.category_classifier.n_parameters() + self.suit_classifier.n_parameters()
 
     def rebuild_classifier(self, target: Literal["suit", "category"]) -> nn.Module:
-        with open(f"backend/flask/utils/result/{target}_config.json", 'rb') as f:
+        with open(f"utils/result/{target}_config.json", 'rb') as f:
             config = json.load(f)
             classifier = CardClassifier(image_size=torch.Size((config["image_height"], config["image_width"],)), 
                             convolution_structure=config["convolution_structure"],
@@ -44,10 +44,10 @@ class CardRecognizer:
         self.category_dataset = CardsDataset(scale=0.6, split="test", csv_file=csv_file, target="category")
         self.category_classifier = self.rebuild_classifier(target="category")
         
-        category_checkpoint = torch.load("backend/flask/utils/result/category_classifier.pth", map_location=self.device)
+        category_checkpoint = torch.load("utils/result/category_classifier.pth", map_location=self.device)
         self.category_classifier.load_state_dict(category_checkpoint['model_state_dict'])
         
-        pruned_expert_path = os.path.join("backend/flask/utils/result/category_pruned_experts.json")
+        pruned_expert_path = os.path.join("utils/result/category_pruned_experts.json")
         if os.path.exists(pruned_expert_path):
             with open(pruned_expert_path, 'rb') as f:
                 pruned_expert = json.load(f)
@@ -61,7 +61,7 @@ class CardRecognizer:
         self.suit_dataset = CardsDataset(scale=0.6, split="test", csv_file=csv_file, target="suit")
         self.suit_classifier = self.rebuild_classifier(target="suit")
         
-        suit_checkpoint = torch.load("backend/flask/utils/result/suit_classifier.pth", map_location=self.device)
+        suit_checkpoint = torch.load("utils/result/suit_classifier.pth", map_location=self.device)
         self.suit_classifier.load_state_dict(suit_checkpoint['model_state_dict'])
         
         pruned_expert_path = os.path.join("result/suit_pruned_experts.json")

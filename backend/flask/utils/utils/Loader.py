@@ -18,7 +18,7 @@ class CardsDataset(Dataset):
     convert : str
     csv_file : str
     def __init__(self,
-                  path: str = "backend/flask/static/data/", 
+                  path: str = "static/data/", 
                   transform = None, 
                   seed: int = 55, 
                   scale: float = 1, 
