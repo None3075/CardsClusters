@@ -86,14 +86,14 @@ class Card:
         card_name = f"{value_name} of {self.suit}"
         
         
-        return f"/static/data/test/{card_name}/{self.number}.jpg"
+        return f"static/data/test/{card_name}/{self.number}.jpg"
             
     def to_dict(self):
         return {
             'suit': self.suit,
             'value': self.value,
             'numeric_value': self.get_numeric_value(),
-            'image_path': self.get_image_path(),
+            'image_path': "/"+self.get_image_path(),
             'predicted_category': self.predicted_category,
             'predicted_suit': self.predicted_suit
         }

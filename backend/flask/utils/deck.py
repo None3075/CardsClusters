@@ -28,7 +28,7 @@ class Deck:
         
         for card in self.cards:
             # Get image path
-            image_path = "./backend/flask"+card.get_image_path()
+            image_path = card.get_image_path()
             if os.path.exists(image_path):
                 # Load and transform image to tensor
                 image = Image.open(image_path).convert('L')
