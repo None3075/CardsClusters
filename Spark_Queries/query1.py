@@ -60,7 +60,7 @@ hand_cols = ["Hand_0", "Hand_1", "Hand_2", "Hand_3", "Hand_4", "Hand_5", "Hand_6
 df_moves = df_chunks.withColumn("n_moves",
     1 + sum([
         when((col(f"Hand_{i-1}")[0].isNotNull()) & (col(f"Hand_{i-1}")[0] != col(f"Hand_{i-2}")[0]), 1).otherwise(0)
-        for i in range(1, 8)
+        for i in range(1, len(hand_cols))
     ])
 )
 
@@ -90,9 +90,10 @@ df_risk = df_moves.withColumn(
     when(col("n_moves") <= quartiles[0], "Safe")
     .when((col("n_moves") > quartiles[0]) & (col("n_moves") <= quartiles[1]), "Tactical")
     .when((col("n_moves") > quartiles[1]) & (col("n_moves") <= quartiles[2]), "Risky")
-    .otherwise("Wow, you like risk ;)")
+    .otherwise("Suicidal")
 )
 
 df_risk.show()
 
-df_risk.groupBy("Chunk Number", "Risk Level").count().orderBy("Chunk Number", "count").show(truncate = False)
+df_risk = df_risk.groupBy("Chunk Number", "Risk Level").count().orderBy("Chunk Number", "count")
+df_risk.show(truncate = False)

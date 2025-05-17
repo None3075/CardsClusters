@@ -27,7 +27,7 @@ count_play = df_play.count()
 #Using the dataset where the model has been trained
 #-----------------------------------------------------
 CHUNK_SIZE = 500
-from pyspark.sql.functions import floor
+from pyspark.sql.functions import floor, expr, when, coalesce
 df_clean = df_train.select(
     col("index"),
     col("Shown_cards").alias("Hand_-1"),
@@ -41,7 +41,6 @@ df_clean = df_train.select(
     col("Hand 7").alias("Hand_7")
 )
 df_chunks = df_clean.withColumn("Chunk Number", floor(col("index")/CHUNK_SIZE))
-from pyspark.sql.functions import expr, when, coalesce
 hand_cols = ["Hand_0", "Hand_1", "Hand_2", "Hand_3", "Hand_4", "Hand_5", "Hand_6", "Hand_7"]
 df_moves = df_chunks.withColumn("n_moves",
     1 + sum([
@@ -67,7 +66,7 @@ df_risk_train = df_moves.withColumn(
     when(col("n_moves") <= quartiles[0], "Safe")
     .when((col("n_moves") > quartiles[0]) & (col("n_moves") <= quartiles[1]), "Tactical")
     .when((col("n_moves") > quartiles[1]) & (col("n_moves") <= quartiles[2]), "Risky")
-    .otherwise("Why would you risk yourself so much?!")
+    .otherwise("Suicidal")
 )
 
 #-----------------------------------------------------
@@ -83,7 +82,6 @@ df_clean = df_play.select(
     col("Hand 4").alias("Hand_4"),
     col("Hand 5").alias("Hand_5")
 )
-from pyspark.sql.functions import expr, when, coalesce
 hand_cols = ["Hand_0", "Hand_1", "Hand_2", "Hand_3", "Hand_4", "Hand_5"]
 df_moves = df_clean.withColumn("n_moves",
     1 + sum([
@@ -109,7 +107,7 @@ df_risk_play = df_moves.withColumn(
     when(col("n_moves") <= quartiles[0], "Safe")
     .when((col("n_moves") > quartiles[0]) & (col("n_moves") <= quartiles[1]), "Tactical")
     .when((col("n_moves") > quartiles[1]) & (col("n_moves") <= quartiles[2]), "Risky")
-    .otherwise("Why would you risk yourself so much?!")
+    .otherwise("Suicidal")
 )
 
 #--------------
@@ -127,3 +125,28 @@ df_query2.show()
 df_fin = df_risk_play.select(col("n_moves"), col("Risk Level")).groupBy("Risk Level").count().orderBy("count")
 df_query2 = df_fin.withColumn("Proportion", round(col("count")*100/count_play, 2))
 df_query2.show(truncate = False)
+
+#Shows how many unique move values (n_moves) there are per risk type, indicating variability in the strategy
+from pyspark.sql.functions import count, collect_set
+
+df_fin_train = df_risk_train.select("Chunk Number", "Risk Level", "n_moves") \
+    .groupBy("Chunk Number", "Risk Level") \
+    .agg(
+        count("*").alias("count"),
+        round((count("*") * 100 / CHUNK_SIZE), 2).alias("Proportion"),
+        collect_set("n_moves").alias("Unique_Moves")
+    ) \
+    .orderBy("Chunk Number", "count")
+
+df_fin_train.show(truncate=False)
+
+df_fin_play = df_risk_play.select("Risk Level", "n_moves") \
+    .groupBy("Risk Level") \
+    .agg(
+        count("*").alias("count"),
+        round((count("*") * 100 / CHUNK_SIZE), 2).alias("Proportion"),
+        collect_set("n_moves").alias("Unique_Moves")
+    ) \
+    .orderBy("count")
+
+df_fin_play.show(truncate=False)
