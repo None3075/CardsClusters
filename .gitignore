@@ -2,5 +2,4 @@ __pycache__/*
 utils/__pycache__/*
 arquitecture/__pycache__/*
 arquitecture/components/__pycache__/*
-backend/flask/static/data/*
 Spark_Queries/dag_queries.py
