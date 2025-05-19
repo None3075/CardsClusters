@@ -1,3 +1,1 @@
-Meter el data dentro de backend/flask/static
-
-Localhost:3000
+WEB at localhost:3000
