@@ -12,7 +12,7 @@ RUN npm install -g serve
 # Copy source code
 COPY . .
 
-ARG REACT_APP_API_URL=http://test:5000/api/game
+ARG REACT_APP_API_URL=http://localhost:5000/api/game
 ENV REACT_APP_API_URL=${REACT_APP_API_URL}
 
 RUN npm run build
