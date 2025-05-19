@@ -28,7 +28,6 @@ streaming_df = spark \
     .format("kafka") \
     .option("kafka.bootstrap.servers", kafka_bootstrap_servers) \
     .option("subscribe", kafka_topic) \
-    .option("startingOffsets", "earliest") \
     .load()
 
 parsed_streaming_df = streaming_df \
@@ -44,16 +43,18 @@ df_with_timestamp = parsed_streaming_df \
 bot_users = df_with_timestamp \
     .withWatermark("event_time", "1 minute") \
     .groupBy(
-        window("event_time", "1 minutes", "1 minutes"),
+        window("event_time", "1 minute"),
         "user_id"
     ) \
     .count() \
     .filter("count >= 20") \
-    .select("user_id")
+    .select("user_id") \
+    .distinct()
 
 query = bot_users \
     .writeStream \
-    .outputMode("complete") \
+    .outputMode("update") \
+    .option("checkpointLocation","hdfs://hadoop-master:9000/user/ec2-user/checkpoint") \
     .format("console") \
     .option("truncate", False) \
     .option("numRows", 10) \
