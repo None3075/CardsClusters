@@ -106,6 +106,7 @@ class Game:
             )
         
         dealer_action = self.dealer_agent.decide(state)
+        
         print(f"Dealer's action: {dealer_action}")
         if dealer_action == 1:  # Hit
             self.dealer_hand.append(self.deck.deal())
@@ -116,8 +117,11 @@ class Game:
                 self.game_over = True
                 self.message = "Dealer busts! You win!"
                 return self.get_game_state()
-        else:
+        elif dealer_action == 0:  # Stand
             self.message = "Dealer stands."
+            self.dealer_stand = True
+        else:
+            self.message = "Invalid action. Dealer's turn."
             self.dealer_stand = True
         
         # Switch turn back to player

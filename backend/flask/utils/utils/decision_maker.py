@@ -8,7 +8,7 @@ class DecisionMaker:
     State format: (player_total, dealer_visible_card, usable_ace)
     Action: 0 = stand, 1 = hit
     """
-    def __init__(self, q_table_path="backend/flask/utils/utils/q_table_final.pkl"):
+    def __init__(self, q_table_path="utils/utils/q_table_final.pkl"):
         """
         Initialize the DecisionMaker with a Q-table.
 
@@ -41,7 +41,7 @@ class DecisionMaker:
             raise ValueError("State must be a tuple or list of length 3: (player_total, dealer_visible_card, usable_ace)")
 
         player_total, dealer_visible_card, usable_ace = state
-        if not (0 <= player_total <= 31):
+        if not (-2 <= player_total <= 32):
             raise ValueError("player_total must be between 0 and 31")
         if not (-1 <= dealer_visible_card <= 12):
             raise ValueError("dealer_visible_card must be between 1 and 10")
