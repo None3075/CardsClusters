@@ -51,7 +51,7 @@ finance_by_country = df_with_timestamp \
     ) \
     .count() \
     .select("window", "location", "count") \
-    .orderBy(col("count").desc())
+    .orderBy(col("window.end").desc(),col("count").desc())
 
 query = finance_by_country \
     .writeStream \

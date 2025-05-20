@@ -54,7 +54,7 @@ bot_users = df_with_timestamp \
 query = bot_users \
     .writeStream \
     .outputMode("update") \
-    .option("checkpointLocation","hdfs://hadoop-master:9000/user/ec2-user/checkpoint") \
+    .option("checkpointLocation","hdfs://hadoop-master:9000/user/ec2-user/checkpoint/bot") \
     .format("console") \
     .option("truncate", False) \
     .option("numRows", 10) \

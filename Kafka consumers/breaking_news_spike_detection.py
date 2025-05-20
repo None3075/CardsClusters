@@ -50,12 +50,13 @@ breaking_news = df_with_timestamp \
     .count() \
     .filter("count >= 250") \
     .select("window", "article_id", "count") \
-    .orderBy(col("count").desc())
+    .orderBy(col("window.end").desc(), col("count").desc())
 
 query = breaking_news \
     .writeStream \
     .outputMode("complete") \
     .format("console") \
+    .option("checkpointLocation","hdfs://hadoop-master:9000/user/ec2-user/checkpoint/news") \
     .option("truncate", False) \
     .option("numRows", 10) \
     .start()
