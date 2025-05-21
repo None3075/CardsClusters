@@ -15,7 +15,7 @@ services:
       context: ./frontend/my-app
       dockerfile: Dockerfile
       args: 
-        REACT_APP_API_URL: http://107.20.30.95:5000
+        REACT_APP_API_URL: http://172.19.0.2:5000
     container_name: blackjack-frontend
     ports:
       - "3000:3000"
